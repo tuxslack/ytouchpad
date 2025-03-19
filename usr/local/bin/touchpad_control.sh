@@ -77,6 +77,7 @@
 # https://meumundotux.blogspot.com/2019/08/como-instalar-um-programa-indicador-de.html
 # https://ubuntuhandbook.org/index.php/2021/10/disable-touchpad-typing-option-not-working/
 # https://www.noobslab.com/2013/08/touchpad-indicator-updated-and-fixed.html
+# https://franciscochaves.com.br/blog/habilitar-ou-desabilitar-o-touchpad-no-xubuntu/
 
 
 clear
@@ -179,19 +180,21 @@ enable_touchpad() {
 # "Habilitar Touchpad". Você poderá desabilitar ou habilitar o touchpad clicando nos 
 # respectivos botões.
 
-yad --center --title="Controle do Touchpad - synclient" \
+yad --center \
+    --title="Controle do Touchpad - synclient" \
     --buttons-layout=center \
     --button="Desabilitar Touchpad:1" \
     --button="Habilitar Touchpad:2" \
     --width=400 --height=150 \
     --text="Escolha uma opção para o touchpad:" \
-    --center \
     --form \
      | while read button_id; do
+
         case $button_id in
             1) disable_touchpad ;;
             2) enable_touchpad ;;
         esac
+
     done
 
 
@@ -251,7 +254,7 @@ touchpad_name=$(xinput list --name-only | grep -i 'touchpad')
 
 if [[ -z "$touchpad_name" ]]; then
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad não encontrado!" --button=OK:0  --width=300
+    yad --center --title="Controle do Touchpad" --text="Touchpad não encontrado!" --button=OK:0  --width="300"
 
     exit 1
 fi
@@ -262,7 +265,7 @@ disable_touchpad() {
 
     xinput disable "$touchpad_name"
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0 --width=300 
+    yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0 --width="300" 
 }
 
 # Função para habilitar o touchpad
@@ -271,7 +274,7 @@ enable_touchpad() {
 
     xinput enable "$touchpad_name"
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0 --width=300 
+    yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0 --width="300"
 }
 
 
@@ -281,19 +284,21 @@ enable_touchpad() {
 # "Desabilitar Touchpad" e "Habilitar Touchpad". Ao clicar em cada um, o 
 # touchpad será desabilitado ou habilitado, respectivamente.
 
-yad --center --title="Controle do Touchpad - libinput" \
+yad --center \
+    --title="Controle do Touchpad - libinput" \
     --buttons-layout=center \
     --button="Desabilitar Touchpad:1" \
     --button="Habilitar Touchpad:2" \
-    --width=400 --height=150 \
+    --width="400" --height="150" \
     --text="Escolha uma opção para o touchpad:" \
-    --center \
     --form \
      | while read button_id; do
+
         case $button_id in
             1) disable_touchpad ;;
             2) enable_touchpad ;;
         esac
+
     done
 
 
@@ -389,13 +394,25 @@ while true; do
 
     # Verificar o nome do dispositivo do touchpad
 
-    touchpad_device=$(xinput list --name-only | grep -i "touchpad")
+
+# A mensagem "unable to find device" geralmente é gerada pelo comando xinput quando ele 
+# não consegue encontrar o dispositivo de entrada especificado, como um touchpad, no 
+# sistema.
+
+
+    # touchpad_device=$(xinput list --name-only | grep -i "touchpad")
+
+
+# Isso garante que o script encontre o touchpad mesmo se ele tiver um nome ligeiramente 
+# diferente, como "SynPS/2 Synaptics TouchPad" ou "ETPS/2 Elantech Touchpad".
+
+    touchpad_device=$(xinput list --name-only | grep -i 'synaptics\|elantech\|touchpad')
 
     # Verificar se o dispositivo foi encontrado
 
     if [ -z "$touchpad_device" ]; then
 
-        notify-send -t $tempo_notificacao "Touchpad não encontrado" "Não foi possível encontrar o dispositivo de touchpad."
+        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad não encontrado" "Não foi possível encontrar o dispositivo de touchpad."
 
         exit 1 # Para evitar o error na variável $status abaixo.
     fi
@@ -403,7 +420,7 @@ while true; do
 
 # Erro na Execução:
 
-#    A linha "/usr/local/bin/touchpad_control.sh: linha 401: [: : esperava expressão de número inteiro" 
+# A linha "/usr/local/bin/touchpad_control.sh: linha 401: [: : esperava expressão de número inteiro" 
 # sugere que o script encontrou um erro de comparação em algum ponto. Esse erro ocorre 
 # quando o script tenta comparar uma variável que não contém um valor numérico (por exemplo, 
 # o status do touchpad não é retornado corretamente).
@@ -411,15 +428,37 @@ while true; do
 
     # Verificar o status do touchpad
 
-    status=$(xinput list-props "$touchpad_device" | grep "Device Enabled" | awk '{print $4}')
+    # Tem o objetivo de capturar o status de ativação ou desativação do touchpad. 
+
+
+    # Se encontrado, exibe as propriedades
+
+    # status=$(xinput list-props "$touchpad_device" | grep "Device Enabled" | awk '{print $4}')
+
+    status=$(xinput list-props "$touchpad_device" 2>/dev/null | grep -i "Device Enabled" | awk '{print $NF}')
+
+
+
+
+# Verifique se o valor de status é um número válido (1 ou 0)
+
+if [[ ! "$status" =~ ^[01]$ ]]; then
+
+    notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Erro" "Não foi possível obter o status do touchpad."
+
+    exit 1
+
+fi
+
+    # Agora podemoes realizar a comparação normalmente
 
     if [ "$status" -eq 1 ]; then
 
-        notify-send -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
+        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
 
     else
 
-        notify-send -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
+        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
 
     fi
 
