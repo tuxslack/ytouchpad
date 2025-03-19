@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Touchpad Indicator
+Name[pt_BR]=Touchpad Indicator
+Comment=
+Comment[pt_BR]=Exiba o status do touchpad.
+Exec=/usr/local/bin/touchpad_control.sh
+Icon=/usr/share/icons/extras/touchpad-indicator.png
+Path=
+Categories=System;
+Terminal=false
+StartupNotify=false
+
+Keywords[pt_BR]=touchpad;status;monitore;indicator;
+
