@@ -1,5 +1,5 @@
 # ytouchpad
-Para quem deseja controlar o touchpad de forma automatizada e fácil. 
+Para quem deseja controlar o touchpad de forma automatizada e fácil (Habilita, desabilita ou exiba o status do touchpad). 
 
 
 Padrão: 
