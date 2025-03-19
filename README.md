@@ -2,6 +2,8 @@
 Para quem deseja controlar o touchpad de forma automatizada e fácil (Habilita, desabilita ou exiba o status do touchpad). 
 
 
+<img src="https://raw.githubusercontent.com/tuxslack/ytouchpad/refs/heads/master/touchpad-linux.png" width="500" />
+
 Padrão: 
 
 O script apenas monitore e exiba o status do touchpad sem chamar a função de controle do touchpad que altera seu estado (ferramenta).
