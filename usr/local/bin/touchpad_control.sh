@@ -82,8 +82,54 @@
 
 clear
 
+# ----------------------------------------------------------------------------------------
+
+intervalo="2"
+
+# Tempo que a notificação ficará visível (em milissegundos)
+
+tempo_notificacao="20000"  # 20000 ms = 20 segundos
+
+
 
 # ----------------------------------------------------------------------------------------
+
+# Função para verificar se o comando está instalado
+
+verificar_comando() {
+
+    comando=$1
+
+    if ! command -v "$comando" &> /dev/null; then
+
+        echo "Erro: O comando '$comando' não está instalado."
+
+        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Controle do Touchpad" "Erro: O comando $comando não está instalado."
+
+        exit 1
+    fi
+}
+
+# Verificar se xinput e notify-send estão instalados
+
+verificar_comando "synclient"
+
+verificar_comando "xinput"
+
+verificar_comando "notify-send"
+
+verificar_comando "paplay"
+
+verificar_comando "yad"
+
+
+# No Void Linux
+#
+# sudo xbps-install -y xinput
+
+
+# ----------------------------------------------------------------------------------------
+
 
 # Para controlar as configurações de touchpad
 
@@ -159,6 +205,8 @@ disable_touchpad() {
 
     synclient TouchpadOff=1
 
+    # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
+
     yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0
 }
 
@@ -168,6 +216,8 @@ disable_touchpad() {
 enable_touchpad() {
 
     synclient TouchpadOff=0
+
+    # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
     yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0
 }
@@ -191,8 +241,11 @@ yad --center \
      | while read button_id; do
 
         case $button_id in
+
             1) disable_touchpad ;;
+
             2) enable_touchpad ;;
+
         esac
 
     done
@@ -265,6 +318,8 @@ disable_touchpad() {
 
     xinput disable "$touchpad_name"
 
+    # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
+
     yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0 --width="300" 
 }
 
@@ -273,6 +328,8 @@ disable_touchpad() {
 enable_touchpad() {
 
     xinput enable "$touchpad_name"
+
+    # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
     yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0 --width="300"
 }
@@ -295,8 +352,11 @@ yad --center \
      | while read button_id; do
 
         case $button_id in
+
             1) disable_touchpad ;;
+
             2) enable_touchpad ;;
+
         esac
 
     done
@@ -307,33 +367,8 @@ yad --center \
 
 # ----------------------------------------------------------------------------------------
 
-# Função para verificar se o comando está instalado
-
-verificar_comando() {
-
-    comando=$1
-
-    if ! command -v "$comando" &> /dev/null; then
-
-        echo "Erro: O comando '$comando' não está instalado."
-
-        exit 1
-    fi
-}
-
-# Verificar se xinput e notify-send estão instalados
-
-verificar_comando "xinput"
-
-verificar_comando "notify-send"
 
 
-# No Void Linux
-#
-# sudo xbps-install -y xinput
-
-
-# ----------------------------------------------------------------------------------------
 
 ferramenta(){
 
@@ -383,11 +418,7 @@ fi
 
 
 
-intervalo="2"
 
-# Tempo que a notificação ficará visível (em milissegundos)
-
-tempo_notificacao="20000"  # 20000 ms = 20 segundos
 
 
 while true; do
@@ -456,9 +487,14 @@ fi
 
         notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
 
+        paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
+
+
     else
 
         notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
+
+        paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
     fi
 
