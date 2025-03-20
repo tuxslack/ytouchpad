@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Autor:    Fernando Souza - https://www.youtube.com/@fernandosuporte/
 # Data:     19/03/2025 as 16:07:50
@@ -6,8 +6,16 @@
 # Licença:  GPL
 #
 
+# Descrição: Para habilitar ou desabilitar o touchpad.
 
-# Para desabilitar/habilitar o touchpad
+
+# Como desabilitar o touchpad do notebook no Linux?
+
+
+# As vezes quando estamos fazendo alguma tarefa que precisa utilizar mais o teclado, pode 
+# acontecer de ficar tocando o touchpad, e isso atrapalha na produtividade, alguns notebooks 
+# vem com uma tecla para desabilitar, mas se o seu teclado não possue essa tecla?
+
 
 
 # Este script é destinado a automatizar o processo de verificação e controle de um touchpad 
@@ -39,6 +47,115 @@
 
 
 
+
+# O Indicador do Touchpad geralmente se refere a uma função ou ícone que exibe informações 
+# sobre o estado do touchpad do seu dispositivo. Ele pode ter algumas finalidades, dependendo 
+# do sistema operacional ou da configuração do seu computador. Aqui estão as funções mais 
+# comuns:
+# 
+# 1. Mostrar se o Touchpad Está Ativo ou Desativado:
+# 
+#     Muitos laptops possuem um ícone ou indicador visual que mostra se o touchpad está 
+# ativado ou desativado. Isso é útil quando você desativa o touchpad, por exemplo, para 
+# evitar toques acidentais enquanto digita.
+# 
+# 2. Ajuste da Sensibilidade ou Configurações do Touchpad:
+# 
+#    Alguns sistemas permitem que o indicador também seja uma forma de acessar rapidamente 
+# as configurações do touchpad, como a sensibilidade, a velocidade de movimento do ponteiro 
+# ou o comportamento dos gestos (scroll, zoom, etc.).
+# 
+# 3. Alertar Sobre o Status do Dispositivo:
+# 
+#    Alguns touchpads têm LEDs ou indicadores visuais que acendem ou piscam para indicar 
+# problemas, como falhas ou desconexão do dispositivo.
+# 
+# 4. Ajuste de Funções Avançadas:
+# 
+#    Em alguns dispositivos, o indicador também pode ser uma maneira de alternar entre 
+# diferentes modos do touchpad (como habilitar gestos multitouch, por exemplo).
+# 
+# Onde você encontra o Indicador:
+# 
+#    Barra de tarefas: Em muitos laptops, você pode ver um ícone na bandeja do sistema 
+# (canto inferior direito) que indica o status do touchpad.
+# 
+#    Ajustes/Configurações: No painel de controle do seu sistema operacional (Windows, 
+# macOS, Linux), você pode acessar as configurações de dispositivos de entrada, incluindo 
+# o touchpad.
+
+
+
+# OpenBox
+
+# Para configurar a tecla Fn + F7 para chamar um script no Openbox, você precisará editar 
+# alguns arquivos de configuração. O Openbox não possui suporte direto para teclas de função 
+# (como Fn) via sua própria configuração, mas você pode usar ferramentas como xbindkeys para 
+# mapear teclas e chamar o script que deseja.
+
+# Instalar xbindkeys e xev
+
+
+# Identificar a tecla Fn + F7 com o xev
+
+#     Execute o comando xev no terminal.
+
+#     Uma nova janela será aberta. Agora, pressione Fn + F7 e observe o terminal onde o 
+#     xev está rodando.
+
+#     Ele vai mostrar várias informações sobre o evento da tecla pressionada. 
+
+# state 0x0, keycode 68 (keysym 0xffc7, F7), same_screen YES,
+
+# O código keycode associado à tecla F7 será algo como 68 no exemplo acima. Esse número 
+# pode variar dependendo do seu teclado.
+
+
+# Configurar o xbindkeys para Mapear a Tecla
+
+# crie o arquivo de configuração
+
+# xbindkeys --defaults > ~/.xbindkeysrc
+
+# nano ~/.xbindkeysrc
+
+# Agora, adicione uma linha para mapear o keycode identificado (vamos assumir que o 
+# keycode da tecla F7 seja 68) para chamar o script. No exemplo, vamos chamar o script 
+# touchpad_control.sh.
+
+# Adicione uma linha como esta:
+
+# "bash /usr/local/bin/touchpad_control.sh"
+#     m:0x0 + c:68
+
+# Aqui, c:68 é o código da tecla (que você obteve com o xev) e o comando após a " " é o 
+# que será executado quando a tecla for pressionada.
+
+
+# Reiniciar o xbindkeys
+
+# Para carregar a nova configuração, reinicie o xbindkeys:
+
+# pkill xbindkeys
+# xbindkeys
+
+# Ou, se você quiser executar o xbindkeys automaticamente ao iniciar, adicione essa linha 
+# no seu arquivo de inicialização do Openbox (geralmente ~/.config/openbox/autostart).
+
+# Testar
+
+# Agora, pressione Fn + F7 e veja se o script é executado.
+
+
+
+# Se a tecla Fn não for detectada diretamente (o que é comum em alguns teclados), você 
+# pode precisar usar um código diferente para o F7, ou tentar outra ferramenta como 
+# input-remapper para mapear as teclas Fn, já que o comportamento das teclas Fn pode variar 
+# dependendo do hardware.
+
+
+
+
 # Atualizações: Teclas Sonorizadas (para tocar um som ao acionar), se quiser.
 
 
@@ -53,12 +170,12 @@
 
 # Dê permissão de execução ao script:
 
-# chmod +x /usr/local/bin/verificar_touchpad.sh
+# chmod +x /usr/local/bin/touchpad_control.sh
 
 
 # Execute o script com usuário comum:
 
-# verificar_touchpad.sh
+# touchpad_control.sh
 
 
 
@@ -78,6 +195,7 @@
 # https://ubuntuhandbook.org/index.php/2021/10/disable-touchpad-typing-option-not-working/
 # https://www.noobslab.com/2013/08/touchpad-indicator-updated-and-fixed.html
 # https://franciscochaves.com.br/blog/habilitar-ou-desabilitar-o-touchpad-no-xubuntu/
+# https://www.maketecheasier.com/disable-touchpad-on-startup-linux/
 
 
 clear
@@ -90,6 +208,8 @@ intervalo="2"
 
 tempo_notificacao="20000"  # 20000 ms = 20 segundos
 
+
+logo="/usr/share/icons/extras/touchpad-indicator.png"
 
 
 # ----------------------------------------------------------------------------------------
@@ -104,7 +224,7 @@ verificar_comando() {
 
         echo "Erro: O comando '$comando' não está instalado."
 
-        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Controle do Touchpad" "Erro: O comando $comando não está instalado."
+        notify-send -i "$logo" -t $tempo_notificacao "Controle do Touchpad" "Erro: O comando $comando não está instalado."
 
         exit 1
     fi
@@ -126,6 +246,25 @@ verificar_comando "yad"
 # No Void Linux
 #
 # sudo xbps-install -y xinput
+
+
+# No Debian
+
+# sudo apt install -y xinput
+
+
+
+# Sons padrão do sistema para notificações
+
+
+# No Void Linux:
+
+# sudo xbps-install -S freedesktop-sound-theme
+
+
+# No Debian:
+
+# sudo apt-get install freedesktop-sound-theme
 
 
 # ----------------------------------------------------------------------------------------
@@ -169,7 +308,7 @@ else
 
         echo "O pacote Synaptics NÃO está instalado."
 
-        # yad --center --title="Erro" --text="O synclient não está instalado. Instale o pacote 'xserver-xorg-input-synaptics'." --button=OK:0
+        # yad --center --window-icon="$logo" --title="Erro" --text="O synclient não está instalado. Instale o pacote 'xserver-xorg-input-synaptics'." --buttons-layout=center --button=OK:0
 
 
         # Se o synclient não estiver instalado, instale o pacote xserver-xorg-input-synaptics:
@@ -179,7 +318,7 @@ else
         # sudo apt-get install -y xserver-xorg-input-synaptics
 
 
-        # exit 1
+        exit 1
 
     fi
 fi
@@ -203,11 +342,42 @@ fi
 
 disable_touchpad() {
 
+
     synclient TouchpadOff=1
+
+
+
+# Desativar o touchpad na inicialização
+
+# echo "
+# [Desktop Entry]
+# Type=Application
+# Name=Disable touchpad
+# Name[en_US]=Disable touchpad
+# Name[pt]=Desativar touchpad
+# Name[pt_BR]=Desativar touchpad
+# GenericName=Touchpad disabler
+# Comment=Disables touchpad
+# Comment[pt]=Desativa touchpad
+# Comment[pt_BR]=Desativa touchpad
+# Exec=synclient TouchpadOff=1
+# StartupNotify=true
+# Terminal=false
+# " > ~/.config/autostart/disable-touchpad.desktop
+
+
+# chmod +x ~/.config/autostart/disable-touchpad.desktop
+
+
+# Depois que o arquivo estiver na pasta autostart, tudo o que você precisa fazer é reiniciar 
+# sua máquina. Ao fazer isso, você notará que não poderá mais usar seu touchpad. Obviamente, 
+# isso ocorre por causa do arquivo .desktop que acabou de ser colocado.
+
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0
+    yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad desabilitado!" --buttons-layout=center --button=OK:0
+
 }
 
 
@@ -215,11 +385,30 @@ disable_touchpad() {
 
 enable_touchpad() {
 
+
+# Reativando o touchpad
+
+# Se você quiser reativar permanentemente o touchpad, navegue no seu gerenciador de arquivos 
+# para ~/.config/autostart e exclua o arquivo "disable-touchpad.desktop". No entanto, se 
+# você precisar dele apenas temporariamente, insira o seguinte comando em um terminal.
+
+
+    # rm ~/.config/autostart/disable-touchpad.desktop
+
+
     synclient TouchpadOff=0
+
+
+
+# Alterar 0 para 1 é semelhante a Verdadeiro e Falso. 1 o mantém desabilitado, 0 o mantém 
+# desligado. Saber esse comando é ótimo, porque você pode habilitá-lo pelo tempo que precisar, 
+# depois é só reiniciar (ou desligar sua máquina) e quando ligá-lo novamente, o touchpad 
+# estará desabilitado novamente.
+
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0
+    yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad habilitado!" --buttons-layout=center --button=OK:0
 }
 
 
@@ -230,15 +419,27 @@ enable_touchpad() {
 # "Habilitar Touchpad". Você poderá desabilitar ou habilitar o touchpad clicando nos 
 # respectivos botões.
 
+
+# A recomendação de adicionar a opção -r ao comando read surge principalmente quando você 
+# está lidando com entradas de dados que podem conter caracteres de escape, como barras 
+# invertidas. No seu caso, no entanto, a saída do comando yad será apenas um número (1 ou 2), 
+# o que não deveria causar problemas com ou sem a opção -r.
+
+
+# Isso vai garantir que, caso você use entradas mais complexas no futuro, o read não terá 
+# problemas com barras invertidas.
+
+
 yad --center \
+    --window-icon="$logo" \
     --title="Controle do Touchpad - synclient" \
     --buttons-layout=center \
     --button="Desabilitar Touchpad:1" \
     --button="Habilitar Touchpad:2" \
-    --width=400 --height=150 \
+    --width="400" --height="150" \
     --text="Escolha uma opção para o touchpad:" \
     --form \
-     | while read button_id; do
+     | while read -r button_id; do
 
         case $button_id in
 
@@ -307,7 +508,7 @@ touchpad_name=$(xinput list --name-only | grep -i 'touchpad')
 
 if [[ -z "$touchpad_name" ]]; then
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad não encontrado!" --button=OK:0  --width="300"
+    yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad não encontrado!" --buttons-layout=center --button=OK:0  --width="300"
 
     exit 1
 fi
@@ -320,7 +521,7 @@ disable_touchpad() {
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad desabilitado!" --button=OK:0 --width="300" 
+    yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad desabilitado!" --buttons-layout=center --button=OK:0 --width="300" 
 }
 
 # Função para habilitar o touchpad
@@ -331,7 +532,7 @@ enable_touchpad() {
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
-    yad --center --title="Controle do Touchpad" --text="Touchpad habilitado!" --button=OK:0 --width="300"
+    yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad habilitado!" --buttons-layout=center --button=OK:0 --width="300"
 }
 
 
@@ -342,6 +543,7 @@ enable_touchpad() {
 # touchpad será desabilitado ou habilitado, respectivamente.
 
 yad --center \
+    --window-icon="$logo" \
     --title="Controle do Touchpad - libinput" \
     --buttons-layout=center \
     --button="Desabilitar Touchpad:1" \
@@ -349,7 +551,7 @@ yad --center \
     --width="400" --height="150" \
     --text="Escolha uma opção para o touchpad:" \
     --form \
-     | while read button_id; do
+     | while read -r button_id; do
 
         case $button_id in
 
@@ -431,6 +633,9 @@ while true; do
 # sistema.
 
 
+# Liste os dispositivos conectados ao sistema (xinput --list)
+
+
     # touchpad_device=$(xinput list --name-only | grep -i "touchpad")
 
 
@@ -443,7 +648,7 @@ while true; do
 
     if [ -z "$touchpad_device" ]; then
 
-        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad não encontrado" "Não foi possível encontrar o dispositivo de touchpad."
+        notify-send -i "$logo" -t $tempo_notificacao "Touchpad não encontrado" "Não foi possível encontrar o dispositivo de touchpad."
 
         exit 1 # Para evitar o error na variável $status abaixo.
     fi
@@ -475,7 +680,7 @@ while true; do
 
 if [[ ! "$status" =~ ^[01]$ ]]; then
 
-    notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Erro" "Não foi possível obter o status do touchpad."
+    notify-send -i "$logo" -t $tempo_notificacao "Erro" "Não foi possível obter o status do touchpad."
 
     exit 1
 
@@ -485,14 +690,14 @@ fi
 
     if [ "$status" -eq 1 ]; then
 
-        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
+        notify-send -i "$logo" -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
 
         paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
 
     else
 
-        notify-send -i /usr/share/icons/extras/touchpad-indicator.png -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
+        notify-send -i "$logo" -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
 
         paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
@@ -506,6 +711,9 @@ done
 
 
 # ----------------------------------------------------------------------------------------
+
+# Aqui podemos desabilitar ou habilitar temporariamente o touchpad.
+
 
 # Para usar como indicador de estado do touchpad desabilitar a função abaixo:
 
