@@ -1,5 +1,5 @@
 # ytouchpad
-Para quem deseja controlar o touchpad de forma automatizada e fácil (Habilita, desabilita ou exiba o status do touchpad). 
+Para quem deseja controlar o touchpad de forma automatizada e fácil (habilita, desabilita ou exiba o status do touchpad). 
 
 
 <img src="https://raw.githubusercontent.com/tuxslack/ytouchpad/refs/heads/master/touchpad-linux.png" width="500" />
