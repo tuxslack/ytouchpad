@@ -202,6 +202,15 @@ clear
 
 # ----------------------------------------------------------------------------------------
 
+# Cores para formatação da saída dos comandos
+
+RED='\e[1;31m'
+GREEN='\e[1;32m'
+YELLOW='\e[1;33m'
+NC='\e[0m' # sem cor
+
+# ----------------------------------------------------------------------------------------
+
 intervalo="2"
 
 # Tempo que a notificação ficará visível (em milissegundos)
@@ -222,12 +231,19 @@ verificar_comando() {
 
     if ! command -v "$comando" &> /dev/null; then
 
-        echo "Erro: O comando '$comando' não está instalado."
+
+        echo -e "${RED}\nErro: O comando '$comando' não está instalado. \n ${NC}"
+
+        sleep 1
+
 
         notify-send -i "$logo" -t $tempo_notificacao "Controle do Touchpad" "Erro: O comando $comando não está instalado."
 
+        paplay /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
+
         exit 1
     fi
+
 }
 
 # Verificar se xinput e notify-send estão instalados
@@ -289,24 +305,34 @@ distro_antiga(){
 
 if lsmod | grep -q "synaptics"; then
 
-    echo "O driver Synaptics está carregado."
+    echo -e "\n${GREEN}O driver Synaptics está carregado. ${NC}\n"
+
+    sleep 1
 
 else
 
-    echo "O driver Synaptics NÃO está carregado."
-    echo "Tentando verificar a instalação do pacote Synaptics..."
+    echo -e "${RED}\nO driver Synaptics NÃO está carregado. \n\nTentando verificar a instalação do pacote Synaptics... ${NC}"
 
+    sleep 1
 
 
     # Verificar se o pacote Synaptics está instalado
 
     if command -v synclient &> /dev/null; then
 
-        echo "O pacote Synaptics está instalado."
+
+        echo -e "${GREEN}\nO pacote Synaptics está instalado. \n ${NC}"
+
+        sleep 1
+
 
     else
 
-        echo "O pacote Synaptics NÃO está instalado."
+
+        echo -e "${RED}\nO pacote Synaptics NÃO está instalado. \n ${NC}"
+
+        sleep 1
+
 
         # yad --center --window-icon="$logo" --title="Erro" --text="O synclient não está instalado. Instale o pacote 'xserver-xorg-input-synaptics'." --buttons-layout=center --button=OK:0
 
@@ -321,6 +347,7 @@ else
         exit 1
 
     fi
+
 fi
 
 
@@ -386,18 +413,17 @@ disable_touchpad() {
 enable_touchpad() {
 
 
+    synclient TouchpadOff=0
+
+
 # Reativando o touchpad
 
 # Se você quiser reativar permanentemente o touchpad, navegue no seu gerenciador de arquivos 
 # para ~/.config/autostart e exclua o arquivo "disable-touchpad.desktop". No entanto, se 
-# você precisar dele apenas temporariamente, insira o seguinte comando em um terminal.
+# você precisar dele apenas temporariamente, insira o seguinte comando acima em um terminal.
 
 
     # rm ~/.config/autostart/disable-touchpad.desktop
-
-
-    synclient TouchpadOff=0
-
 
 
 # Alterar 0 para 1 é semelhante a Verdadeiro e Falso. 1 o mantém desabilitado, 0 o mantém 
@@ -519,6 +545,34 @@ disable_touchpad() {
 
     xinput disable "$touchpad_name"
 
+
+# Desativar o touchpad na inicialização
+
+# echo "
+# [Desktop Entry]
+# Type=Application
+# Name=Disable touchpad
+# Name[en_US]=Disable touchpad
+# Name[pt]=Desativar touchpad
+# Name[pt_BR]=Desativar touchpad
+# GenericName=Touchpad disabler
+# Comment=Disables touchpad
+# Comment[pt]=Desativa touchpad
+# Comment[pt_BR]=Desativa touchpad
+# Exec=xinput disable "$touchpad_name"
+# StartupNotify=true
+# Terminal=false
+# " > ~/.config/autostart/disable-touchpad.desktop
+
+
+# chmod +x ~/.config/autostart/disable-touchpad.desktop
+
+
+# Depois que o arquivo estiver na pasta autostart, tudo o que você precisa fazer é reiniciar 
+# sua máquina. Ao fazer isso, você notará que não poderá mais usar seu touchpad. Obviamente, 
+# isso ocorre por causa do arquivo .desktop que acabou de ser colocado.
+
+
     # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
     yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad desabilitado!" --buttons-layout=center --button=OK:0 --width="300" 
@@ -529,6 +583,18 @@ disable_touchpad() {
 enable_touchpad() {
 
     xinput enable "$touchpad_name"
+
+
+# Reativando o touchpad
+
+# Se você quiser reativar permanentemente o touchpad, navegue no seu gerenciador de arquivos 
+# para ~/.config/autostart e exclua o arquivo "disable-touchpad.desktop". No entanto, se 
+# você precisar dele apenas temporariamente, insira o seguinte comando acima em um terminal.
+
+
+    # rm ~/.config/autostart/disable-touchpad.desktop
+
+
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
@@ -648,7 +714,13 @@ while true; do
 
     if [ -z "$touchpad_device" ]; then
 
+        echo -e "${RED}\nNão foi possível encontrar o dispositivo de touchpad. \n ${NC}"
+
+        sleep 1
+
         notify-send -i "$logo" -t $tempo_notificacao "Touchpad não encontrado" "Não foi possível encontrar o dispositivo de touchpad."
+
+        paplay /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
 
         exit 1 # Para evitar o error na variável $status abaixo.
     fi
@@ -680,7 +752,15 @@ while true; do
 
 if [[ ! "$status" =~ ^[01]$ ]]; then
 
+
+    echo -e "${RED}\nNão foi possível obter o status do touchpad. \n ${NC}"
+
+    sleep 1
+
+
     notify-send -i "$logo" -t $tempo_notificacao "Erro" "Não foi possível obter o status do touchpad."
+
+    paplay /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
 
     exit 1
 
@@ -690,6 +770,12 @@ fi
 
     if [ "$status" -eq 1 ]; then
 
+
+        echo -e "\n${GREEN}O seu touchpad está ativado. ${NC}\n"
+
+        sleep 1
+
+
         notify-send -i "$logo" -t $tempo_notificacao "Touchpad Ativado" "O seu touchpad está ativado."
 
         paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
@@ -697,15 +783,23 @@ fi
 
     else
 
+
+        echo -e "${RED}\nO seu touchpad está desativado. \n ${NC}"
+
+        sleep 1
+
+
         notify-send -i "$logo" -t $tempo_notificacao "Touchpad Desativado" "O seu touchpad está desativado."
 
         paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
     fi
 
+
     # Aguardar o intervalo definido antes de verificar novamente
 
     sleep $intervalo
+
 
 done
 
