@@ -223,6 +223,11 @@ logo="/usr/share/icons/extras/touchpad-indicator.png"
 
 # ----------------------------------------------------------------------------------------
 
+
+# Início das funções
+
+
+
 # Função para verificar se o comando está instalado
 
 verificar_comando() {
@@ -232,7 +237,7 @@ verificar_comando() {
     if ! command -v "$comando" &> /dev/null; then
 
 
-        echo -e "${RED}\nErro: O comando '$comando' não está instalado. \n ${NC}"
+        echo -e "${RED}\nErro: O comando $comando não está instalado. \n ${NC}"
 
         sleep 1
 
@@ -241,26 +246,32 @@ verificar_comando() {
 
         paplay /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
 
+
         exit 1
+
     fi
 
 }
 
+
 # Verificar se xinput e notify-send estão instalados
 
-verificar_comando "synclient"
+# verificar_comando "synclient"
 
-verificar_comando "xinput"
+# verificar_comando "xinput"
 
 verificar_comando "notify-send"
 
 verificar_comando "paplay"
 
-verificar_comando "yad"
+# verificar_comando "yad"
+
+# verificar_comando "inxi"
+
 
 
 # No Void Linux
-#
+
 # sudo xbps-install -y xinput
 
 
@@ -296,24 +307,73 @@ verificar_comando "yad"
 # corretamente em sistemas mais novos.
 
 
+# Modelo da placa-mãe
+
+which inxi 1> /dev/null &&  echo -e "\n${GREEN}Placa-mãe: ${NC}\n" && inxi -M 
+ 
+
+
 # Ajuda a identificar se o driver Synaptics está ativo ou não no sistema.
 
 distro_antiga(){
 
 
-# Verifica se o módulo do driver Synaptics está carregado no kernel.
+# Verifica se o módulo está carregado no kernel.
 
-if lsmod | grep -q "synaptics"; then
+# Para verificar múltiplos módulos de entrada e touchpad.
 
-    echo -e "\n${GREEN}O driver Synaptics está carregado. ${NC}\n"
+# Isso ajuda a garantir que você está verificando todos os módulos possíveis que podem 
+# estar envolvidos no suporte ao seu touchpad.
+
+# Conclusão:
+
+# Existem várias variações e módulos diferentes relacionados ao suporte a touchpads no 
+# Linux, dependendo do fabricante, do tipo de interface (PS/2, USB, I2C) e da tecnologia 
+# utilizada. Além de synaptics, synaptics_i2c, e psmouse, você também pode encontrar outros 
+# módulos, como evdev, hid_multitouch, i2c-hid, e outros, dependendo do hardware e do driver 
+# em uso.
+
+
+if lsmod | grep -Eq "synaptics|synaptics_i2c|psmouse|ps2mouse|evdev|hid_multitouch|alps|elan_i2c|hid-psmouse|hid-sensor-touchscreen|i2c-hid|hid_generic"; then
+
+
+    echo -e "\n${GREEN}O driver está carregado. ${NC}\n"
 
     sleep 1
+
 
 else
 
-    echo -e "${RED}\nO driver Synaptics NÃO está carregado. \n\nTentando verificar a instalação do pacote Synaptics... ${NC}"
+    echo -e "${RED}\nO driver NÃO está carregado. \n\nTentando verificar a instalação do pacote... ${NC}"
 
     sleep 1
+
+
+# Carregar o módulo manualmente:
+
+# Se o seu sistema não estiver usando o módulo automaticamente, você pode tentar carregá-lo 
+# manualmente com o comando:
+
+# sudo modprobe synaptics_i2c
+
+# sudo modprobe psmouse
+
+
+# O comando modprobe synaptics_i2c não pode ser executado por um usuário comum sem permissões 
+# elevadas, pois ele requer acesso para carregar ou descarregar módulos do kernel, o que é 
+# uma operação que envolve modificações no sistema.
+
+
+# Diagnóstico:
+
+# Se o módulo não estiver carregado ou o touchpad não estiver funcionando corretamente, 
+# você pode verificar as mensagens do kernel com o comando dmesg para ver se há erros 
+# relacionados ao synaptics_i2c:
+
+# dmesg | grep synaptics_i2c
+
+# Isso pode ajudar a identificar problemas na comunicação entre o touchpad e o sistema.
+
 
 
     # Verificar se o pacote Synaptics está instalado
@@ -339,9 +399,19 @@ else
 
         # Se o synclient não estiver instalado, instale o pacote xserver-xorg-input-synaptics:
 
-        # Para sistemas baseados em Debian/Ubuntu:
+
+        # Instalar o driver Synaptics
+
+        # Se o driver Synaptics não estiver instalado, você precisará instalá-lo. No Ubuntu 
+        # ou em distribuições baseadas no Debian.
+
+        # sudo apt-get update
 
         # sudo apt-get install -y xserver-xorg-input-synaptics
+
+        # Esse comando instala o pacote necessário para o driver Synaptics, que inclui a 
+        # ferramenta synclient.
+
 
 
         exit 1
@@ -376,6 +446,8 @@ disable_touchpad() {
 
 # Desativar o touchpad na inicialização
 
+# mkdir -p ~/.config/autostart/
+
 # echo "
 # [Desktop Entry]
 # Type=Application
@@ -400,6 +472,9 @@ disable_touchpad() {
 # sua máquina. Ao fazer isso, você notará que não poderá mais usar seu touchpad. Obviamente, 
 # isso ocorre por causa do arquivo .desktop que acabou de ser colocado.
 
+    echo -e "${RED}\nTouchpad desabilitado! \n ${NC}"
+
+    sleep 1
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
@@ -431,6 +506,10 @@ enable_touchpad() {
 # depois é só reiniciar (ou desligar sua máquina) e quando ligá-lo novamente, o touchpad 
 # estará desabilitado novamente.
 
+
+    echo -e "${GREEN}\nTouchpad habilitado! \n ${NC}"
+
+    sleep 1
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
 
@@ -534,10 +613,20 @@ touchpad_name=$(xinput list --name-only | grep -i 'touchpad')
 
 if [[ -z "$touchpad_name" ]]; then
 
+
+    echo -e "${RED}\nTouchpad não encontrado! \n ${NC}"
+
+    sleep 1
+
+
+    # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
+
     yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad não encontrado!" --buttons-layout=center --button=OK:0  --width="300"
 
     exit 1
+
 fi
+
 
 # Função para desabilitar o touchpad
 
@@ -547,6 +636,8 @@ disable_touchpad() {
 
 
 # Desativar o touchpad na inicialização
+
+# mkdir -p ~/.config/autostart/
 
 # echo "
 # [Desktop Entry]
@@ -573,10 +664,16 @@ disable_touchpad() {
 # isso ocorre por causa do arquivo .desktop que acabou de ser colocado.
 
 
+    echo -e "${RED}\nTouchpad desabilitado! \n ${NC}"
+
+    sleep 1
+
+
     # paplay /usr/share/sounds/freedesktop/stereo/device-removed.oga
 
     yad --center --window-icon="$logo" --title="Controle do Touchpad" --text="Touchpad desabilitado!" --buttons-layout=center --button=OK:0 --width="300" 
 }
+
 
 # Função para habilitar o touchpad
 
@@ -594,6 +691,10 @@ enable_touchpad() {
 
     # rm ~/.config/autostart/disable-touchpad.desktop
 
+
+    echo -e "${GREEN}\nTouchpad habilitado! \n ${NC}"
+
+    sleep 1
 
 
     # paplay /usr/share/sounds/freedesktop/stereo/device-added.oga
@@ -680,13 +781,18 @@ else
 
 fi
 
+
 }
 
 # ----------------------------------------------------------------------------------------
 
 
+# Fim das funções
 
 
+
+
+# Início do loop while
 
 
 while true; do
@@ -710,6 +816,7 @@ while true; do
 
     touchpad_device=$(xinput list --name-only | grep -i 'synaptics\|elantech\|touchpad')
 
+
     # Verificar se o dispositivo foi encontrado
 
     if [ -z "$touchpad_device" ]; then
@@ -723,6 +830,7 @@ while true; do
         paplay /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
 
         exit 1 # Para evitar o error na variável $status abaixo.
+
     fi
 
 
@@ -802,6 +910,10 @@ fi
 
 
 done
+
+
+
+# Fim do loop while
 
 
 # ----------------------------------------------------------------------------------------
