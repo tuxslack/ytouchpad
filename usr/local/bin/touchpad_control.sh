@@ -1142,11 +1142,6 @@ fi
 
 }
 
-# Chamada da função para verificar o estado do touchpad
-
-check_touchpad_enabled
-
-
 
 
 # ----------------------------------------------------------------------------------------
@@ -1353,7 +1348,7 @@ fi
 
 # Verifica a versão do inxi instalada
 
-inxi_version=$(inxi --version)
+inxi_version=$(inxi -V)
 
 # Extrai o número da versão
 
@@ -1545,7 +1540,8 @@ if ! command -v xinput &> /dev/null; then
 
 # Para verifica se o touchpad está habilitado ou não, sem usar o xinput
 
-# Chama a função para verificar o touchpad
+
+# Chama a função para verificar o estado do touchpad
 
   check_touchpad_enabled
 
